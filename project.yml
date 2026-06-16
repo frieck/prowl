@@ -1,0 +1,54 @@
+# XcodeGen spec — edit this file, then run: ./scripts/generate-xcodeproj.sh
+# Daily development stays in Cursor via Package.swift + ./build.sh
+
+name: PRowl
+options:
+  bundleIdPrefix: com.prowl
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    ENABLE_HARDENED_RUNTIME: YES
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Set your Apple Team ID here, or pass DEVELOPMENT_TEAM=… to release.sh
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  PRowl:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/PRowl
+        createIntermediateGroups: true
+    resources:
+      - path: PRowl/Assets.xcassets
+      - path: Resources/AppIcon.png
+    settings:
+      base:
+        PRODUCT_NAME: PRowl
+        PRODUCT_BUNDLE_IDENTIFIER: com.prowl.app
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: PRowl/PRowl.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        COMBINE_HIDPI_IMAGES: YES
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/../Frameworks"
+    prebuildScripts:
+      - name: Prepare App Icon Set
+        script: "${SRCROOT}/scripts/prepare-appiconset.sh"
+        basedOnDependencyAnalysis: false
+    postbuildScripts:
+      - name: Copy Bundle Resources
+        script: "${SRCROOT}/scripts/copy-bundle-resources.sh"
+        basedOnDependencyAnalysis: false
+    scheme:
+      testTargets: []
+      gatherCoverageData: false
