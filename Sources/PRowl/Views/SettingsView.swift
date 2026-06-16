@@ -10,6 +10,8 @@ struct SettingsView: View {
     @State private var notificationsDenied = false
     @State private var alertsDisabled = false
     @State private var testNotificationResult: String?
+    @State private var launchAtLogin = false
+    @State private var launchAtLoginMessage: String?
 
     private let intervalOptions: [(label: String, seconds: Double)] = [
         ("30 seconds", 30),
@@ -30,6 +32,8 @@ struct SettingsView: View {
                     eventsSection
                         .prowlSectionSeparator()
                     intervalSection
+                        .prowlSectionSeparator()
+                    generalSection
                 }
                 .padding(.bottom, 8)
                 .prowlScrollStyle()
@@ -51,6 +55,7 @@ struct SettingsView: View {
         .onAppear {
             apiURLInput = poller.apiURL
             refreshNotificationStatus()
+            refreshLaunchAtLoginState()
         }
     }
 
@@ -315,6 +320,51 @@ struct SettingsView: View {
                 poller.enabledEvents = events
             }
         )
+    }
+
+    // MARK: - General
+
+    private var generalSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("General", systemImage: "slider.horizontal.3")
+                .font(.headline)
+
+            Toggle("Open PRowl at login", isOn: launchAtLoginBinding)
+
+            if let launchAtLoginMessage {
+                Text(launchAtLoginMessage)
+                    .font(.caption)
+                    .foregroundStyle(launchAtLoginMessage.contains("Approve") ? .orange : .secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if LaunchAtLoginManager.status == .requiresApproval {
+                Button("Open Login Items Settings") {
+                    LaunchAtLoginManager.openSystemSettings()
+                }
+                .controlSize(.small)
+            }
+        }
+    }
+
+    private var launchAtLoginBinding: Binding<Bool> {
+        Binding(
+            get: { launchAtLogin },
+            set: { newValue in
+                do {
+                    try LaunchAtLoginManager.setEnabled(newValue)
+                    refreshLaunchAtLoginState()
+                } catch {
+                    refreshLaunchAtLoginState()
+                    launchAtLoginMessage = error.localizedDescription
+                }
+            }
+        )
+    }
+
+    private func refreshLaunchAtLoginState() {
+        launchAtLogin = LaunchAtLoginManager.isEnabled
+        launchAtLoginMessage = LaunchAtLoginManager.statusMessage
     }
 
     // MARK: - Interval

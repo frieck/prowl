@@ -62,6 +62,7 @@ Open it from the menu-bar popover via the gear icon. It has four sections:
   - Merged
   - Closed
 - **Check every** -- polling interval.
+- **General** -- open PRowl automatically when you log in.
 
 All settings persist across launches. Notification preferences default to all
 events enabled; toggle the ones you don't care about off.
