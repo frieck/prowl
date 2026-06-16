@@ -47,12 +47,7 @@ func isBackground(_ idx: Int) -> Bool {
     let b = Int(pixels[idx + 2])
     let a = Int(pixels[idx + 3])
     if a == 0 { return true }
-    if max(r, max(g, b)) <= threshold { return true }
-    // Pale outline/mat around the rounded card (sits on the black canvas in source art).
-    let sum = r + g + b
-    let spread = max(r, max(g, b)) - min(r, min(g, b))
-    if sum > 260 && r > 80 && g > 80 && b > 80 && spread < 55 { return true }
-    return false
+    return max(r, max(g, b)) <= threshold
 }
 
 // Iterative flood fill (4-connected) from the corners.
@@ -85,44 +80,6 @@ while let p = stack.popLast() {
     push(x - 1, y)
     push(x, y + 1)
     push(x, y - 1)
-}
-
-func isPeelableLightEdge(_ idx: Int) -> Bool {
-    let r = Int(pixels[idx])
-    let g = Int(pixels[idx + 1])
-    let b = Int(pixels[idx + 2])
-    let sum = r + g + b
-    if sum > 420 && r > 120 && g > 130 && b > 130 { return true }
-    if sum > 360 && r > 100 && g > 110 && b > 110 { return true }
-    return false
-}
-
-func hasTransparentNeighbor(_ x: Int, _ y: Int) -> Bool {
-    for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-        let nx = x + dx, ny = y + dy
-        guard nx >= 0, nx < width, ny >= 0, ny < height else { return true }
-        if pixels[ny * bytesPerRow + nx * bytesPerPixel + 3] == 0 { return true }
-    }
-    return false
-}
-
-// Peel the pale rounded-square stroke that sits outside the card on the source art.
-for _ in 0..<32 {
-    var changed = false
-    let snapshot = pixels
-    for y in 0..<height {
-        for x in 0..<width {
-            let idx = y * bytesPerRow + x * bytesPerPixel
-            guard snapshot[idx + 3] > 0 else { continue }
-            guard isPeelableLightEdge(idx), hasTransparentNeighbor(x, y) else { continue }
-            pixels[idx] = 0
-            pixels[idx + 1] = 0
-            pixels[idx + 2] = 0
-            pixels[idx + 3] = 0
-            changed = true
-        }
-    }
-    if !changed { break }
 }
 
 guard let out = ctx.makeImage() else {

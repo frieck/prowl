@@ -38,8 +38,6 @@ func renderOpaque(size: Int) -> CGImage? {
     ) else { return nil }
 
     ctx.interpolationQuality = .high
-    ctx.setFillColor(CGColor(red: 0.12, green: 0.08, blue: 0.28, alpha: 1))
-    ctx.fill(CGRect(x: 0, y: 0, width: size, height: size))
     ctx.draw(master, in: CGRect(x: 0, y: 0, width: size, height: size))
     return ctx.makeImage()
 }

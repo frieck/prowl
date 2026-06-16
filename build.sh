@@ -31,14 +31,6 @@ if [[ -n "${VERSION:-}" ]]; then
 fi
 
 ICON_SRC="$ROOT_DIR/Resources/AppIcon.png"
-ICON_SOURCE="$ROOT_DIR/Resources/AppIcon-source.png"
-if [[ -f "$ICON_SOURCE" ]]; then
-  echo "==> Regenerating AppIcon.png from source (strip light fringe) ..."
-  mkdir -p "$ROOT_DIR/build"
-  ROUNDED="$ROOT_DIR/build/AppIcon-rounded.png"
-  swift "$ROOT_DIR/tools/transparent_corners.swift" "$ICON_SOURCE" "$ROUNDED" 36
-  swift "$ROOT_DIR/tools/flatten_icon_canvas.swift" "$ROUNDED" "$ICON_SRC" 1024 1.0 2
-fi
 if [[ -f "$ICON_SRC" ]]; then
   echo "==> Generating AppIcon.icns ..."
   swift "$ROOT_DIR/tools/make_icns.swift" "$ICON_SRC" "$APP_DIR/Contents/Resources/AppIcon.icns"
