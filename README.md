@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Resources/AppIcon.png" alt="PRowl app icon" width="128" height="128">
+  <img src="Resources/AppIcon-rounded.png" alt="PRowl app icon" width="256" height="256">
 </p>
 
 # PRowl
