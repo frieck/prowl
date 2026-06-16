@@ -7,7 +7,7 @@
     <key>CFBundleDisplayName</key>
     <string>PRowl</string>
     <key>CFBundleIdentifier</key>
-    <string>com.prowl.app</string>
+    <string>br.com.farsystems.prowl</string>
     <key>CFBundleExecutable</key>
     <string>PRowl</string>
     <key>CFBundleIconFile</key>
@@ -25,6 +25,6 @@
     <key>LSUIElement</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>PRowl</string>
+    <string>© 2026 FARSystems — https://farsystems.com.br</string>
 </dict>
 </plist>

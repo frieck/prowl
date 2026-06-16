@@ -24,12 +24,15 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
         self.poller = poller
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        item.autosaveName = "PRowl"
         statusItem = item
 
         if let button = item.button {
             button.action = #selector(togglePopover(_:))
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.toolTip = "PRowl"
+            button.setAccessibilityIdentifier(BartenderIntegration.menuBarItemID)
         }
 
         let popover = NSPopover()

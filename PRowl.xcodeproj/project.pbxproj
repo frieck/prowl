@@ -293,7 +293,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = PRowl/PRowl.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
@@ -301,7 +301,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.prowl.app;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.farsystems.prowl;
 				PRODUCT_NAME = PRowl;
 				SDKROOT = macosx;
 			};
@@ -319,7 +319,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.prowl.app;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.farsystems.prowl;
 				PRODUCT_NAME = PRowl;
 				SDKROOT = macosx;
 			};

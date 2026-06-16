@@ -4,6 +4,7 @@ import UserNotifications
 /// Handles app-launch hooks that must run before the menu-bar popover opens.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
         _ = NotificationManager.shared
     }
 

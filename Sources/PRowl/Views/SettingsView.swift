@@ -12,6 +12,8 @@ struct SettingsView: View {
     @State private var testNotificationResult: String?
     @State private var launchAtLogin = false
     @State private var launchAtLoginMessage: String?
+    @State private var excludeFromBartender = false
+    @State private var bartenderMessage: String?
 
     private let intervalOptions: [(label: String, seconds: Double)] = [
         ("30 seconds", 30),
@@ -23,7 +25,7 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ScrollView {
+            ProwlScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     connectionSection
                         .prowlSectionSeparator()
@@ -36,9 +38,7 @@ struct SettingsView: View {
                     generalSection
                 }
                 .padding(.bottom, 8)
-                .prowlScrollStyle()
             }
-            .prowlScrollIndicatorsHidden()
             .frame(minHeight: 400, maxHeight: 480)
 
             HStack {
@@ -56,6 +56,7 @@ struct SettingsView: View {
             apiURLInput = poller.apiURL
             refreshNotificationStatus()
             refreshLaunchAtLoginState()
+            refreshBartenderState()
         }
     }
 
@@ -344,7 +345,51 @@ struct SettingsView: View {
                 }
                 .controlSize(.small)
             }
+
+            if BartenderIntegration.isInstalled {
+                Divider().opacity(0.25).padding(.vertical, 4)
+
+                Toggle("Keep icon visible in menu bar (Bartender)", isOn: excludeFromBartenderBinding)
+
+                Text("Tells Bartender not to hide PRowl. You may need to quit and reopen Bartender once.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                if let bartenderMessage {
+                    Text(bartenderMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Button("Open Bartender") {
+                    BartenderIntegration.openBartender()
+                }
+                .controlSize(.small)
+            }
         }
+    }
+
+    private var excludeFromBartenderBinding: Binding<Bool> {
+        Binding(
+            get: { excludeFromBartender },
+            set: { newValue in
+                do {
+                    try BartenderIntegration.setExcludedFromManagement(newValue)
+                    refreshBartenderState()
+                    bartenderMessage = newValue
+                        ? "PRowl excluded from Bartender. Quit and reopen Bartender if the icon is still hidden."
+                        : "PRowl will be managed by Bartender again."
+                } catch {
+                    refreshBartenderState()
+                    bartenderMessage = error.localizedDescription
+                }
+            }
+        )
+    }
+
+    private func refreshBartenderState() {
+        excludeFromBartender = BartenderIntegration.isExcludedFromManagement
     }
 
     private var launchAtLoginBinding: Binding<Bool> {

@@ -4,7 +4,7 @@ import Security
 /// Stores the GitHub Personal Access Token securely in the macOS Keychain.
 /// The token is never written to disk in plaintext.
 enum KeychainStore {
-    private static let service = "com.prowl.app"
+    private static let service = "br.com.farsystems.prowl"
     private static let account = "github-pat"
 
     /// When sandboxed (App Store / Xcode archive), uses the entitlement access group.

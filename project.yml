@@ -3,7 +3,7 @@
 
 name: PRowl
 options:
-  bundleIdPrefix: com.prowl
+  bundleIdPrefix: br.com.farsystems
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true
@@ -32,15 +32,20 @@ targets:
     settings:
       base:
         PRODUCT_NAME: PRowl
-        PRODUCT_BUNDLE_IDENTIFIER: com.prowl.app
+        PRODUCT_BUNDLE_IDENTIFIER: br.com.farsystems.prowl
         INFOPLIST_FILE: Resources/Info.plist
-        CODE_SIGN_ENTITLEMENTS: PRowl/PRowl.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
         COMBINE_HIDPI_IMAGES: YES
         LD_RUNPATH_SEARCH_PATHS:
           - "$(inherited)"
           - "@executable_path/../Frameworks"
+      configs:
+        Debug:
+          # Ad-hoc / local Xcode runs must not embed App Store entitlements.
+          CODE_SIGN_ENTITLEMENTS: ""
+        Release:
+          CODE_SIGN_ENTITLEMENTS: PRowl/PRowl.entitlements
     prebuildScripts:
       - name: Prepare App Icon Set
         script: "${SRCROOT}/scripts/prepare-appiconset.sh"

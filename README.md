@@ -11,6 +11,8 @@ play on "PR" + "owl" (a watchful night creature) + "prowl".
 Built with SwiftUI (macOS 13+ menu-bar app). Authenticate with the GitHub CLI
 (`gh auth login`) or a Personal Access Token stored in the macOS Keychain.
 
+Published by **[FARSystems](https://farsystems.com.br)** · Bundle ID `br.com.farsystems.prowl`
+
 ## Development vs App Store
 
 This repo has **two build paths** that share the same source files in
@@ -122,6 +124,25 @@ Then:
 3. Choose which PR sets to watch, which events to be notified about, and the interval.
 4. Approve the macOS notification permission prompt the first time.
 
+**PRowl has no Dock icon** — after `open PRowl.app`, look for the owl in the **menu bar** (top-right).
+
+**Using Bartender?** In PRowl Settings → General, enable **Keep icon visible in menu bar (Bartender)**. That adds PRowl to Bartender’s ignore list so it stays in the native menu bar. You may need to quit and reopen Bartender once. After a bundle ID change, Bartender treats PRowl as a new app — pin it again if needed.
+
+### App won't launch?
+
+If double-clicking does nothing (no menu-bar icon), the `.app` was likely signed **with sandbox entitlements** but **without an Apple Team ID**. macOS kills it immediately (no crash dialog).
+
+**Fix:** rebuild with the supported local path:
+
+```bash
+./build.sh
+open PRowl.app
+```
+
+Use `./build.sh` for daily development — not an Xcode **Run** with the Release configuration unless `DEVELOPMENT_TEAM` is set. Xcode **Debug** builds are configured without entitlements; Release/App Store builds require a team ID in `release.sh`.
+
+Remove any old copy from `/Applications` (previous bundle ID `com.prowl.app`) before installing the new build.
+
 ## DMG (direct download)
 
 To package `PRowl.app` as a disk image for sharing outside the App Store:
@@ -151,6 +172,66 @@ xcrun stapler staple build/PRowl.dmg
 
 Notarization is required for macOS Gatekeeper to allow the app on machines that
 didn't build it. App Store distribution uses `./release.sh` instead (`.pkg`, not `.dmg`).
+
+## GitHub Releases (CI)
+
+Pushing a **semver tag** builds a release on GitHub Actions (macOS runner) and
+uploads:
+
+- `PRowl.dmg` — drag-to-Install disk image
+- `PRowl-<version>.zip` — app bundle zip
+- `SHA256SUMS.txt` — checksums
+
+Tag the release (first release: **0.0.1**):
+
+```bash
+git tag 0.0.1
+git push origin 0.0.1
+```
+
+`v0.0.1` works too. The workflow strips an optional `v` prefix and writes that
+version into the app’s `Info.plist` during the build.
+
+CI builds are **ad-hoc signed** (same as local `./dmg.sh`). For public downloads
+without Gatekeeper warnings, add **Developer ID signing + notarization** to the
+workflow later via GitHub secrets (see below).
+
+Pull requests and pushes to `main` run `.github/workflows/ci.yml` (`swift build` +
+`./build.sh` smoke test).
+
+### Optional: signed + notarized releases in CI
+
+Store these as GitHub Actions **secrets** and extend `release.yml` when ready:
+
+| Secret | Purpose |
+|--------|---------|
+| `BUILD_CERTIFICATE_BASE64` | Developer ID Application `.p12` (base64) |
+| `P12_PASSWORD` | Certificate password |
+| `KEYCHAIN_PASSWORD` | Temporary keychain password for the runner |
+| `APPLE_ID` | Apple ID for notarytool |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password |
+| `APPLE_TEAM_ID` | Team ID |
+
+Then run `./dmg.sh` with `SIGN_IDENTITY="Developer ID Application: …"` and
+notarize before uploading.
+
+## Auto-update (Sparkle)
+
+**Safe?** Yes, when done properly: [Sparkle](https://sparkle-project.org/) checks
+an HTTPS appcast, verifies an EdDSA signature on each update, and refuses tampered
+downloads. That is the standard approach for direct-download macOS apps.
+
+**Easy?** Moderate — not a one-liner:
+
+1. Add the Sparkle framework to the project.
+2. Host an `appcast.xml` (GitHub Releases + raw URL works).
+3. Generate and guard Sparkle **EdDSA private keys** (GitHub secret for CI).
+4. Ship **Developer ID signed + notarized** updates (ad-hoc CI builds are a poor
+   fit for Sparkle; Gatekeeper will block or warn on many Macs).
+
+Recommendation: get **signed DMG releases in CI** working first, then add Sparkle
+in a follow-up once notarization is automated. PRowl is small and releases are
+infrequent — many users are fine checking GitHub Releases manually until then.
 
 ## App Store release
 
@@ -268,7 +349,7 @@ scripts/
   generate-xcodeproj.sh             Regenerate PRowl.xcodeproj
   prepare-appiconset.sh             Build icon set from AppIcon.png
   copy-bundle-resources.sh          Bundle runtime PNGs (Xcode build)
-Resources/Info.plist                LSUIElement (menu-bar only), bundle id
+Resources/Info.plist                LSUIElement (menu-bar only), bundle id `br.com.farsystems.prowl`
 Resources/AppIcon.png               App icon (transparent, padded)
 Resources/MenuBarGlyph.png          Menu-bar template glyph
 tools/                                CoreGraphics icon helper scripts
@@ -298,3 +379,13 @@ compares the new status of each PR (keyed by stable GraphQL node id) against the
 previous snapshot, maps the differences to event types, and fires notifications
 only for the events you've enabled. The first fetch seeds the snapshot silently
 so you don't get a burst of alerts on launch.
+
+## About
+
+**PRowl** is developed by [FARSystems](https://farsystems.com.br).
+
+| | |
+|---|---|
+| Bundle ID | `br.com.farsystems.prowl` |
+| Copyright | © 2026 FARSystems |
+| Website | [farsystems.com.br](https://farsystems.com.br) |

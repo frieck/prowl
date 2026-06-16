@@ -120,12 +120,12 @@ When reviewing or implementing features, verify:
 |-------------|------------------|
 | App Sandbox | `com.apple.security.app-sandbox` in `PRowl.entitlements` |
 | Network | `com.apple.security.network.client` only (no server entitlement) |
-| Keychain | `keychain-access-groups` with `$(AppIdentifierPrefix)com.prowl.app` |
+| Keychain | `keychain-access-groups` with `$(AppIdentifierPrefix)br.com.farsystems.prowl` |
 | Hardened Runtime | `ENABLE_HARDENED_RUNTIME: YES` in `project.yml` |
 | No private APIs | Public AppKit / SwiftUI / UserNotifications / Security only |
 | Agent app | `LSUIElement` = true in `Info.plist` (menu-bar accessory, no Dock icon) |
 | Icons | `AppIcon.appiconset` via `scripts/prepare-appiconset.sh`; menu glyph is template PNG |
-| Single bundle ID | `com.prowl.app` everywhere (Info.plist, entitlements, keychain service) |
+| Single bundle ID | `br.com.farsystems.prowl` everywhere (Info.plist, entitlements, keychain service) |
 
 **Entitlements policy:** only add new entitlements if the feature cannot work without them. Document why in the PR/commit message. App Store review rejects unnecessary entitlements.
 

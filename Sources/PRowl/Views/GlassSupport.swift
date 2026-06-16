@@ -123,74 +123,105 @@ extension View {
         }
     }
 
-    /// Apply to content **inside** a `ScrollView` (not on the ScrollView itself).
-    /// Hides the legacy track and keeps wheel/trackpad scrolling.
+    /// Legacy alias — prefer `ProwlScrollView` for scroll areas.
     @ViewBuilder
     func prowlScrollStyle() -> some View {
-        self.background(ProwlScrollViewConfigurator())
+        self
     }
+}
 
-    /// Hide SwiftUI scroll indicators on a `ScrollView`.
-    @ViewBuilder
-    func prowlScrollIndicatorsHidden() -> some View {
-        if #available(macOS 13.0, *) {
-            self.scrollIndicators(.hidden)
-        } else {
-            self
+// MARK: - Scroll view (thin overlay scrollbars)
+
+enum ProwlScrollConfigurator {
+    static func apply(to scrollView: NSScrollView) {
+        scrollView.drawsBackground = false
+        scrollView.borderType = .noBorder
+        scrollView.scrollerStyle = .overlay
+        scrollView.autohidesScrollers = true
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.verticalScrollElasticity = .allowed
+        scrollView.horizontalScrollElasticity = .none
+
+        if let scroller = scrollView.verticalScroller {
+            scroller.scrollerStyle = .overlay
+            scroller.controlSize = .mini
+            scroller.isHidden = false
+            scroller.alphaValue = 1
         }
     }
 }
 
-/// Finds the enclosing NSScrollView from content placed inside a SwiftUI ScrollView.
-private struct ProwlScrollViewConfigurator: NSViewRepresentable {
-    func makeNSView(context: Context) -> ConfiguratorView {
-        let view = ConfiguratorView()
-        view.onConfigure = configure
-        return view
+private final class ProwlNSScrollView: NSScrollView {
+    var onLayout: (() -> Void)?
+
+    override var isFlipped: Bool { true }
+
+    override func tile() {
+        super.tile()
+        ProwlScrollConfigurator.apply(to: self)
     }
 
-    func updateNSView(_ nsView: ConfiguratorView, context: Context) {
-        nsView.scheduleConfigure()
+    override func layout() {
+        super.layout()
+        onLayout?()
+    }
+}
+
+/// AppKit-backed scroll container with thin overlay scrollbars (avoids SwiftUI’s thick indicators on macOS 26+).
+struct ProwlScrollView<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        ProwlScrollViewRepresentable(content: content)
+    }
+}
+
+private struct ProwlScrollViewRepresentable<Content: View>: NSViewRepresentable {
+    @ViewBuilder var content: () -> Content
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
     }
 
-    private func configure(_ scrollView: NSScrollView) {
-        scrollView.drawsBackground = false
-        scrollView.scrollerStyle = .overlay
-        scrollView.autohidesScrollers = true
-        scrollView.hasVerticalScroller = false
-        scrollView.hasHorizontalScroller = false
-        scrollView.verticalScrollElasticity = .allowed
-        scrollView.horizontalScrollElasticity = .none
+    func makeNSView(context: Context) -> ProwlNSScrollView {
+        let scrollView = ProwlNSScrollView()
+        ProwlScrollConfigurator.apply(to: scrollView)
+
+        let hostingView = NSHostingView(rootView: content())
+        scrollView.documentView = hostingView
+
+        context.coordinator.hostingView = hostingView
+        context.coordinator.scrollView = scrollView
+        scrollView.onLayout = { [weak coordinator = context.coordinator] in
+            coordinator?.updateDocumentSize()
+        }
+
+        DispatchQueue.main.async {
+            context.coordinator.updateDocumentSize()
+        }
+
+        return scrollView
     }
 
-    final class ConfiguratorView: NSView {
-        var onConfigure: ((NSScrollView) -> Void)?
+    func updateNSView(_ scrollView: ProwlNSScrollView, context: Context) {
+        context.coordinator.hostingView?.rootView = content()
+        ProwlScrollConfigurator.apply(to: scrollView)
+        context.coordinator.updateDocumentSize()
+    }
 
-        override func viewDidMoveToSuperview() {
-            super.viewDidMoveToSuperview()
-            scheduleConfigure()
-        }
+    final class Coordinator {
+        var hostingView: NSHostingView<Content>?
+        weak var scrollView: NSScrollView?
 
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            scheduleConfigure()
-        }
-
-        func scheduleConfigure() {
-            DispatchQueue.main.async { [weak self] in
-                self?.configureEnclosingScrollView()
-            }
-        }
-
-        private func configureEnclosingScrollView() {
-            guard let onConfigure else { return }
-            var current: NSView? = self
-            while let view = current {
-                if let scrollView = view as? NSScrollView {
-                    onConfigure(scrollView)
-                    return
-                }
-                current = view.superview
+        func updateDocumentSize() {
+            guard let hostingView, let scrollView else { return }
+            hostingView.layoutSubtreeIfNeeded()
+            let width = max(scrollView.contentView.bounds.width, scrollView.bounds.width, 1)
+            let height = max(hostingView.fittingSize.height, 1)
+            let newFrame = NSRect(x: 0, y: 0, width: width, height: height)
+            if hostingView.frame != newFrame {
+                hostingView.frame = newFrame
             }
         }
     }

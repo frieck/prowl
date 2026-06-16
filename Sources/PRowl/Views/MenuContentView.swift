@@ -78,16 +78,14 @@ struct MenuContentView: View {
                 subtitle: poller.isLoading ? "Loading..." : "You're all caught up."
             )
         } else {
-            ScrollView {
+            ProwlScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach(poller.pullRequests) { pr in
                         PRRow(pr: pr)
                     }
                 }
                 .padding(.vertical, 2)
-                .prowlScrollStyle()
             }
-            .prowlScrollIndicatorsHidden()
             .frame(maxHeight: 400)
         }
     }
