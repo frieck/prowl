@@ -301,10 +301,10 @@ pipeline removes the background, then trims and recenters on a square canvas:
 swift tools/transparent_corners.swift Resources/AppIcon-source.png Resources/AppIcon-rounded.png 40
 
 # 2) Flatten onto an opaque purple canvas so Finder/DMG don't show a white halo.
-swift tools/flatten_icon_canvas.swift Resources/AppIcon-rounded.png Resources/AppIcon.png 1024 0.96
-
-# 3) Rebuild the bundle (regenerates AppIcon.icns).
 ./build.sh
+
+If the Dock/Finder still shows an old icon with a white edge, clear macOS icon cache:
+`killall Dock` (or log out). Replace `PRowl.app` in `/Applications` after rebuilding.
 ```
 
 ### Regenerate the menu-bar glyph
