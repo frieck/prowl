@@ -11,30 +11,6 @@ play on "PR" + "owl" (a watchful night creature) + "prowl".
 Built with SwiftUI (macOS 13+ menu-bar app). Authenticate with the GitHub CLI
 (`gh auth login`) or a Personal Access Token stored in the macOS Keychain.
 
-Published by **[FARSystems](https://farsystems.com.br)** · Bundle ID `br.com.farsystems.prowl`
-
-## Development vs App Store
-
-This repo has **two build paths** that share the same source files in
-`Sources/PRowl/`:
-
-| | Daily dev (Cursor) | Direct download (DMG) | App Store release |
-|---|---|---|---|
-| **Edit code** | Cursor | Cursor | Cursor (same files) |
-| **Build** | `./build.sh` | `./dmg.sh` | `./release.sh` |
-| **Project** | `Package.swift` | `Package.swift` | `PRowl.xcodeproj` |
-| **Signing** | Ad-hoc (local) | Developer ID (optional) | Apple Distribution |
-| **Sandbox** | No | No | Yes (required) |
-
-You do **not** need to open Xcode for normal development. The `.xcodeproj` exists
-for archiving, signing, and App Store submission only.
-
-After adding new Swift files, regenerate the Xcode project:
-
-```bash
-./scripts/generate-xcodeproj.sh
-```
-
 ## Features
 
 - Lives in the menu bar (no Dock icon).
