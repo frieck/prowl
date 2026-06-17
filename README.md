@@ -300,11 +300,13 @@ pipeline removes the background, then trims and recenters on a square canvas:
 # 1) Make the background (near-black) transparent. Last arg is the luma threshold.
 swift tools/transparent_corners.swift Resources/AppIcon-source.png Resources/AppIcon-rounded.png 40
 
-# 2) Flatten onto an opaque purple canvas so Finder/DMG don't show a white halo.
-swift tools/flatten_icon_canvas.swift Resources/AppIcon-rounded.png Resources/AppIcon.png 1024 0.96
+# 2) Flatten onto an opaque purple canvas (square crop, edge-to-edge) for .icns.
+swift tools/flatten_icon_canvas.swift Resources/AppIcon-rounded.png Resources/AppIcon.png 1024 1.0
 
-# 3) Rebuild the bundle (regenerates AppIcon.icns).
+# 3) Rebuild the bundle (compiles AppIcon.appiconset → Assets.car + AppIcon.icns via Xcode actool).
 ./build.sh
+
+If Finder still shows a stale or generic icon after rebuilding, clear the cache: `killall Finder`
 ```
 
 ### Regenerate the menu-bar glyph

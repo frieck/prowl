@@ -51,6 +51,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
 
         updateButton()
         observePoller(poller)
+        poller.start()
     }
 
     func showPopover() {

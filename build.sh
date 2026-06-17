@@ -32,11 +32,7 @@ fi
 
 ICON_SRC="$ROOT_DIR/Resources/AppIcon.png"
 if [[ -f "$ICON_SRC" ]]; then
-  echo "==> Generating AppIcon.icns ..."
-  swift "$ROOT_DIR/tools/make_icns.swift" "$ICON_SRC" "$APP_DIR/Contents/Resources/AppIcon.icns"
-
-  # Bundle the full-color icon so the in-app UI can display it.
-  cp "$ICON_SRC" "$APP_DIR/Contents/Resources/AppIcon.png"
+  "$ROOT_DIR/scripts/compile-app-icons.sh" "$ROOT_DIR" "$APP_DIR/Contents/Resources"
 fi
 
 # Bundle a monochrome template glyph for the menu-bar item (tinted by macOS).

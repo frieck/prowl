@@ -11,7 +11,6 @@ struct MenuContentView: View {
             .frame(width: 420)
             .background(TransparentWindowConfigurator())
             .onAppear {
-                poller.start()
                 NotificationManager.shared.prepareOnUserInteraction()
             }
     }

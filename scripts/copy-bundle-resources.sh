@@ -8,12 +8,8 @@ RES="$APP/Contents/Resources"
 
 mkdir -p "$RES"
 
-# Full-color icon used inside the popover UI.
-if [[ -f "$ROOT/Resources/AppIcon.png" ]]; then
-  cp "$ROOT/Resources/AppIcon.png" "$RES/AppIcon.png"
-fi
-
-# Menu-bar template glyph (36px).
+# Menu-bar template glyph (36px). Do not copy Resources/AppIcon.png here —
+# it conflicts with AppIcon.icns / the asset catalog and breaks small Finder icons.
 GLYPH="$ROOT/Resources/MenuBarGlyph.png"
 if [[ -f "$GLYPH" ]]; then
   sips -z 36 36 "$GLYPH" --out "$RES/MenuBarIcon.png" >/dev/null

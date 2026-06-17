@@ -28,7 +28,6 @@ targets:
         createIntermediateGroups: true
     resources:
       - path: PRowl/Assets.xcassets
-      - path: Resources/AppIcon.png
     settings:
       base:
         PRODUCT_NAME: PRowl
